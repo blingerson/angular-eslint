@@ -14,20 +14,29 @@ interface VisitorKeys {
   [nodeName: string]: string[];
 }
 
-interface LOC {
-  line: number;
-  column: number;
+interface SourceLocation {
+  start: {
+    line: number;
+    column: number;
+  };
+  end: {
+    line: number;
+    column: number;
+  };
+}
+interface Token {
+  type: string;
+  loc: SourceLocation;
+  range: [number, number];
+  value: string;
 }
 
 interface AST extends Node {
   type: string;
-  comments: string[];
-  tokens: string[];
+  comments: Token[];
+  tokens: Token[];
   range: [number, number];
-  loc: {
-    start: LOC;
-    end: LOC;
-  };
+  loc: SourceLocation;
   templateNodes: any[];
   value: string;
 }
@@ -156,6 +165,20 @@ function getEndSourceSpanFromAST(ast: AST): ParseSourceSpan | null {
   return endSourceSpan;
 }
 
+function convertNgAstCommentsToTokens(comments: Token[]) {
+  const commentTokens = comments.map((comment: any) => {
+    return {
+      // In an HTML context, effectively all our comments are Block comments
+      type: 'Block',
+      value: comment.value,
+      loc: convertNodeSourceSpanToLoc(comment.sourceSpan),
+      range: [comment.sourceSpan.start.offset, comment.sourceSpan.end.offset],
+    } as Token;
+  });
+  // ESLint requires this to be sorted by Token#range[0].
+  return commentTokens;
+}
+
 function parseForESLint(code: string, options: { filePath: string }) {
   const angularCompilerResult = parseTemplate(code, options.filePath, {
     preserveWhitespaces: true,
@@ -164,7 +187,9 @@ function parseForESLint(code: string, options: { filePath: string }) {
 
   const ast: AST = {
     type: 'Program',
-    comments: [],
+    comments: convertNgAstCommentsToTokens(
+      (angularCompilerResult as any).comments || [],
+    ),
     tokens: [],
     range: [0, 0],
     loc: {
