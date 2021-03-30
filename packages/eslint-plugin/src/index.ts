@@ -31,6 +31,9 @@ import noAttributeDecorator, {
 import noConflictingLifecycle, {
   RULE_NAME as noConflictingLifecycleRuleName,
 } from './rules/no-conflicting-lifecycle';
+import noEmptyNgmoduleArrays, {
+  RULE_NAME as noEmptyNgmoduleArraysRuleName,
+} from './rules/no-empty-ngmodule-arrays';
 import noForwardRef, {
   RULE_NAME as noForwardRefRuleName,
 } from './rules/no-forward-ref';
@@ -119,6 +122,7 @@ export default {
     [directiveSelectorRuleName]: directiveSelector,
     [noAttributeDecoratorRuleName]: noAttributeDecorator,
     [noConflictingLifecycleRuleName]: noConflictingLifecycle,
+    [noEmptyNgmoduleArraysRuleName]: noEmptyNgmoduleArrays,
     [noForwardRefRuleName]: noForwardRef,
     [noHostMetadataPropertyRuleName]: noHostMetadataProperty,
     [noInputPrefixRuleName]: noInputPrefix,
